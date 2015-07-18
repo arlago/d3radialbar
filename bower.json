@@ -1,0 +1,20 @@
+{
+  "name": "d3radialbar",
+  "version": "0.0.1",
+  "homepage": "https://github.com/arlago/d3radialbar",
+  "authors": [
+    "Antonio Rodrigo Lago <antoniorodrigolago@yahoo.com.br>"
+  ],
+  "description": "Specialized radial bar chart with d3 library.",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "d3": "~3.5.6"
+  }
+}
