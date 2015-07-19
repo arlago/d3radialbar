@@ -1,7 +1,7 @@
 var config = {
   data: [],
-  width: 400,
-  height: 400,
+  width: 402,
+  height: 402,
   center: {
     innerRadius: 30,
     backgroundColor: "#000",
@@ -77,15 +77,53 @@ svg.selectAll('rect').data(config.data)
 svg.selectAll('text').data(config.data)
   .enter()
   .append("text")
-  .attr("x", function(d, i) { return (config.outerRadius + config.labelDistance) * -1; })
-  .attr("y", 0)
-  .attr("transform", function(d, i) {
-    return "translate(" + ( (config.width / 2) - (d.bar.width / 2) ) + "," + (config.height / 2) + ") rotate(" + (rotationDegree * i) + ")";
-  })
   .text(function (d, i) { return d.label.text; })
+  .attr("x", function(d, i) {
+    var currentRotationDegree = rotationDegree * i;
+    var xCorrection = 0;
+
+    if(90 === currentRotationDegree || 180 == currentRotationDegree) {
+      xCorrection = this.offsetWidth / 2;
+    } else if (90 > currentRotationDegree || 180 < currentRotationDegree) {
+      xCorrection = this.offsetWidth;
+    }
+    return labelHorizontal(d, i).x - xCorrection;
+  })
+  .attr("y", function(d, i) { return labelHorizontal(d, i).y; })
+  // .attr("transform", function(d, i) {
+  //   return "translate(" + ( (config.width / 2) - (d.bar.width / 2) ) + "," + (config.height / 2) + ") rotate(" + (rotationDegree * i) + ")";
+  // })
   .attr("font-family", function(d, i) { return d.label.fontFamily; } )
   .attr("font-size", function(d, i) { return d.label.fontSize; } )
   .attr("fill", function(d, i) { return d.label.fontColor; } );
+
+function labelHorizontal(d, i) {
+  var retorno = {};
+  var currentRotationDegree = rotationDegree * i;
+  switch (true) {
+    case 0 <= currentRotationDegree && currentRotationDegree <= 90:
+        retorno.x = drawConfig.svgCenter.x - (config.outerRadius * Math.cos(currentRotationDegree * Math.PI / 180));
+        retorno.y = drawConfig.svgCenter.y - (config.outerRadius * Math.sin(currentRotationDegree));
+      break;
+
+    case 90 < currentRotationDegree && currentRotationDegree <= 180:
+        retorno.x = drawConfig.svgCenter.x + Math.abs((config.outerRadius * Math.cos(currentRotationDegree * Math.PI / 180)));
+        retorno.y = drawConfig.svgCenter.y - Math.abs((config.outerRadius * Math.sin(currentRotationDegree * Math.PI / 180)));
+      break;
+
+    case 180 < currentRotationDegree && currentRotationDegree <= 270:
+        retorno.x = drawConfig.svgCenter.x + Math.abs((config.outerRadius * Math.cos(currentRotationDegree * Math.PI / 180)));
+        retorno.y = drawConfig.svgCenter.y + Math.abs((config.outerRadius * Math.sin(currentRotationDegree * Math.PI / 180)));
+      break;
+
+    case 270 < currentRotationDegree:
+        retorno.x = drawConfig.svgCenter.x - Math.abs((config.outerRadius * Math.cos(currentRotationDegree * Math.PI / 180)));
+        retorno.y = drawConfig.svgCenter.y + Math.abs((config.outerRadius * Math.sin(currentRotationDegree * Math.PI / 180)));
+      break;
+  }
+
+  return retorno;
+}
 
 // InnerCircle
 svg.append("circle")
