@@ -1,57 +1,5 @@
 var config = {
-  data: [
-    {
-      label: {
-        text: "week 1", // Bar label
-        fontFamily: "Helvetica",
-        fontSize: "15px",
-        fontColor: "#000"
-      },
-      bar: {
-        value: 13, // Bar value
-        color: "#000", // Bar color
-        width: 5
-      }
-    },
-    {
-      label: {
-        text: "week 2", // Bar label
-        fontFamily: "Helvetica",
-        fontSize: "15px",
-        fontColor: "#000"
-      },
-      bar: {
-        value: 13, // Bar value
-        color: "#000", // Bar color
-        width: 5
-      }
-    },
-    {
-      label: {
-        text: "week 3", // Bar label
-        fontFamily: "Helvetica",
-        fontSize: "15px",
-        fontColor: "#000"
-      },
-      bar: {
-        value: 13, // Bar value
-        color: "#000", // Bar color
-        width: 5
-      }
-    },
-    {
-      label: {
-        text: "week 4", // Bar label
-        fontFamily: "Helvetica",
-        fontSize: "15px",
-        fontColor: "#000"
-      },
-      bar: {
-        value: 13, // Bar value
-        color: "#000", // Bar color
-        width: 5
-      }
-    }],
+  data: [],
   width: 400,
   height: 400,
   center: {
@@ -66,7 +14,37 @@ var config = {
   labelDistance: 10 // Label distance from outerRadius.
 };
 
+var dataModelBase = {
+  label: {
+    text: "", // Bar label
+    fontFamily: "Helvetica",
+    fontSize: "15px",
+    fontColor: "#000"
+  },
+  bar: {
+    value: 0, // Bar value
+    color: "#000", // Bar color
+    width: 15
+  }
+};
+
+var currentDataModel;
+for (var i = 0; i < 8; i++) {
+  currentDataModel = _.cloneDeep(dataModelBase);
+  currentDataModel.label.text = "Week " + i;
+  currentDataModel.bar.value = Math.abs(10 + (Math.floor(Math.random() * 101) - 50));
+  config.data.push(currentDataModel);
+}
+
 var rotationDegree = getRotationDegree(config.data);
+
+var drawConfig = {
+  svgCenter: {
+    x: config.width /2,
+    y: config.height /2
+  },
+
+}
 
 var svg = d3.select("body")
             .append("svg")
@@ -84,7 +62,16 @@ svg.selectAll('rect').data(config.data)
   .attr("x", function(d, i) { return (d.bar.value + config.center.innerRadius) * -1; })
   .attr("y", function(d, i) { return d.bar.width * -1; })
   .attr("transform", function(d, i) {
-    return "translate(" + ( (config.width / 2) - (d.bar.width / 2) ) + "," + (config.height / 2) + ") rotate(" + (rotationDegree * i) + ")";
+
+    var currentRotationDegree = rotationDegree * i;
+    var xCorrection = (d.bar.width / 2) *  Math.sin(currentRotationDegree * Math.PI / 180);
+    var yCorrection = (d.bar.width / 2) *  Math.cos(currentRotationDegree * Math.PI / 180);
+
+    var xTranslate = (config.width / 2) - xCorrection;
+    var yTranslate = (config.height / 2) + yCorrection;
+
+    return "translate(" + xTranslate + "," + yTranslate + ") rotate(" + currentRotationDegree + ")";
+
   });
 
 svg.selectAll('text').data(config.data)
@@ -120,3 +107,13 @@ function getRotationDegree(data) {
 
 // Math.sin(angleDegree * Math.PI / 180)
 // Math.cos(angleDegree * (180/Math.PI))
+
+
+// Today circle degrees.
+//     90
+// 0       180
+//    270
+// It Must be.
+//       0
+// 270       90
+//      180
