@@ -18,21 +18,22 @@ var dataModelBase = {
   label: {
     text: "", // Bar label
     fontFamily: "Helvetica",
-    fontSize: "15px",
+    fontSize: "12px",
     fontColor: "#000"
   },
   bar: {
     value: 0, // Bar value
     color: "#000", // Bar color
-    width: 15
+    width: 5
   }
 };
 
 var currentDataModel;
 for (var i = 0; i < 8; i++) {
   currentDataModel = _.cloneDeep(dataModelBase);
-  currentDataModel.label.text = "Week " + i;
-  currentDataModel.bar.value = Math.abs(10 + (Math.floor(Math.random() * 101) - 50));
+  currentDataModel.label.text = i;
+  // currentDataModel.bar.value = Math.abs(10 + (Math.floor(Math.random() * 101) - 50));
+  currentDataModel.bar.value = 60;
   config.data.push(currentDataModel);
 }
 
@@ -82,14 +83,26 @@ svg.selectAll('text').data(config.data)
     var currentRotationDegree = rotationDegree * i;
     var xCorrection = 0;
 
-    if(90 === currentRotationDegree || 180 == currentRotationDegree) {
+    if(90 === currentRotationDegree || 270 == currentRotationDegree) {
       xCorrection = this.offsetWidth / 2;
-    } else if (90 > currentRotationDegree || 180 < currentRotationDegree) {
+    } else if (90 > currentRotationDegree || 270 < currentRotationDegree) {
       xCorrection = this.offsetWidth;
     }
     return labelHorizontal(d, i).x - xCorrection;
+    // return labelHorizontal(d, i).x - xCorrection;
   })
-  .attr("y", function(d, i) { return labelHorizontal(d, i).y; })
+  .attr("y", function(d, i) {
+    var currentRotationDegree = rotationDegree * i;
+    var yCorrection = 0;
+
+    if(0 === currentRotationDegree || 180 == currentRotationDegree) {
+      yCorrection = this.offsetHeight / 4;
+    } else if (180 < currentRotationDegree) {
+      yCorrection = this.offsetHeight / 2;
+    }
+
+    return labelHorizontal(d, i).y + yCorrection;
+  })
   // .attr("transform", function(d, i) {
   //   return "translate(" + ( (config.width / 2) - (d.bar.width / 2) ) + "," + (config.height / 2) + ") rotate(" + (rotationDegree * i) + ")";
   // })
@@ -99,26 +112,27 @@ svg.selectAll('text').data(config.data)
 
 function labelHorizontal(d, i) {
   var retorno = {};
+  var labelRadius = config.outerRadius + config.labelDistance;
   var currentRotationDegree = rotationDegree * i;
   switch (true) {
     case 0 <= currentRotationDegree && currentRotationDegree <= 90:
-        retorno.x = drawConfig.svgCenter.x - (config.outerRadius * Math.cos(currentRotationDegree * Math.PI / 180));
-        retorno.y = drawConfig.svgCenter.y - (config.outerRadius * Math.sin(currentRotationDegree));
+        retorno.x = drawConfig.svgCenter.x - (labelRadius * Math.cos(currentRotationDegree * Math.PI / 180));
+        retorno.y = drawConfig.svgCenter.y - (labelRadius * Math.sin(currentRotationDegree * Math.PI / 180));
       break;
 
     case 90 < currentRotationDegree && currentRotationDegree <= 180:
-        retorno.x = drawConfig.svgCenter.x + Math.abs((config.outerRadius * Math.cos(currentRotationDegree * Math.PI / 180)));
-        retorno.y = drawConfig.svgCenter.y - Math.abs((config.outerRadius * Math.sin(currentRotationDegree * Math.PI / 180)));
+        retorno.x = drawConfig.svgCenter.x + Math.abs((labelRadius * Math.cos(currentRotationDegree * Math.PI / 180)));
+        retorno.y = drawConfig.svgCenter.y - Math.abs((labelRadius * Math.sin(currentRotationDegree * Math.PI / 180)));
       break;
 
     case 180 < currentRotationDegree && currentRotationDegree <= 270:
-        retorno.x = drawConfig.svgCenter.x + Math.abs((config.outerRadius * Math.cos(currentRotationDegree * Math.PI / 180)));
-        retorno.y = drawConfig.svgCenter.y + Math.abs((config.outerRadius * Math.sin(currentRotationDegree * Math.PI / 180)));
+        retorno.x = drawConfig.svgCenter.x + Math.abs((labelRadius * Math.cos(currentRotationDegree * Math.PI / 180)));
+        retorno.y = drawConfig.svgCenter.y + Math.abs((labelRadius * Math.sin(currentRotationDegree * Math.PI / 180)));
       break;
 
     case 270 < currentRotationDegree:
-        retorno.x = drawConfig.svgCenter.x - Math.abs((config.outerRadius * Math.cos(currentRotationDegree * Math.PI / 180)));
-        retorno.y = drawConfig.svgCenter.y + Math.abs((config.outerRadius * Math.sin(currentRotationDegree * Math.PI / 180)));
+        retorno.x = drawConfig.svgCenter.x - Math.abs((labelRadius * Math.cos(currentRotationDegree * Math.PI / 180)));
+        retorno.y = drawConfig.svgCenter.y + Math.abs((labelRadius * Math.sin(currentRotationDegree * Math.PI / 180)));
       break;
   }
 
