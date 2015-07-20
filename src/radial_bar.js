@@ -29,7 +29,7 @@ var dataModelBase = {
 };
 
 var currentDataModel;
-for (var i = 0; i < 8; i++) {
+for (var i = 0; i < 30; i++) {
   currentDataModel = _.cloneDeep(dataModelBase);
   currentDataModel.label.text = i;
   // currentDataModel.bar.value = Math.abs(10 + (Math.floor(Math.random() * 101) - 50));
@@ -78,6 +78,20 @@ svg.selectAll('rect').data(config.data)
 svg.selectAll('text').data(config.data)
   .enter()
   .append("text")
+  .attr('text-anchor', function(d, i) {
+    var textAnchor = 'start';
+    var currentRotationDegree = rotationDegree * i;
+    if((45 < currentRotationDegree && 135 > currentRotationDegree) ||
+        (225 < currentRotationDegree && 315 > currentRotationDegree)) {
+      textAnchor = 'middle';
+    } else if (90 > currentRotationDegree || 270 < currentRotationDegree) {
+      textAnchor = 'end';
+    }
+    // if (45 < getDegreeReducedToFirstQuadrant(currentRotationDegree)) {
+    //   textAnchor = 'middle';
+    // }
+    return textAnchor;
+  })
   .text(function (d, i) { return d.label.text; })
   .attr("x", function(d, i) {
     var currentRotationDegree = rotationDegree * i;
@@ -88,17 +102,19 @@ svg.selectAll('text').data(config.data)
     } else if (90 > currentRotationDegree || 270 < currentRotationDegree) {
       xCorrection = this.offsetWidth;
     }
-    return labelHorizontal(d, i).x - xCorrection;
+    return labelHorizontal(d, i).x;
     // return labelHorizontal(d, i).x - xCorrection;
   })
   .attr("y", function(d, i) {
     var currentRotationDegree = rotationDegree * i;
+    var labelRadius = config.outerRadius + config.labelDistance;
     var yCorrection = 0;
 
     if(0 === currentRotationDegree || 180 == currentRotationDegree) {
       yCorrection = this.offsetHeight / 4;
     } else if (180 < currentRotationDegree) {
-      yCorrection = this.offsetHeight / 2;
+      // yCorrection = this.offsetHeight / 2;
+      yCorrection = this.offsetHeight * Math.abs(Math.sin(currentRotationDegree * Math.PI / 180));
     }
 
     return labelHorizontal(d, i).y + yCorrection;
@@ -137,6 +153,25 @@ function labelHorizontal(d, i) {
   }
 
   return retorno;
+}
+
+function getDegreeReducedToFirstQuadrant(angle) {
+  var reducedAngle;
+  switch (true) {
+    case 0 <= angle && angle <= 90:
+      reducedAngle = angle;
+      break;
+    case 90 < angle && angle <= 180:
+      reducedAngle = 90 - angle;
+      break;
+    case 180 < angle && angle <= 270:
+      reducedAngle = 180 - angle;
+      break;
+    case 270 < angle:
+      reducedAngle = 270 - angle;
+      break;
+  }
+  return reducedAngle;
 }
 
 // InnerCircle
