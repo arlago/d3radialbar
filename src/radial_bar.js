@@ -1,7 +1,7 @@
 var config = {
   data: [],
-  width: 402,
-  height: 402,
+  width: 250,
+  height: 250,
   center: {
     innerRadius: 30,
     backgroundColor: "#000",
@@ -11,7 +11,7 @@ var config = {
     fontColor: "#000"
   },
   outerRadius: 90,
-  labelDistance: 10 // Label distance from outerRadius.
+  labelDistance: 15 // Label distance from outerRadius.
 };
 
 var dataModelBase = {
@@ -29,11 +29,11 @@ var dataModelBase = {
 };
 
 var currentDataModel;
-for (var i = 0; i < 8; i++) {
+for (var i = 0; i < 28; i++) {
   currentDataModel = _.cloneDeep(dataModelBase);
   // currentDataModel.label.text = i + ' pm';
-  currentDataModel.label.text = 'asdf';
-  // currentDataModel.label.text = i;
+  // currentDataModel.label.text = 'asdf';
+  currentDataModel.label.text = i;
   // currentDataModel.bar.value = Math.abs(10 + (Math.floor(Math.random() * 101) - 50));
   currentDataModel.bar.value = 60;
   config.data.push(currentDataModel);
@@ -114,7 +114,8 @@ svg.selectAll('text').data(config.data)
     var currentRotationDegree = rotationDegree * i;
     var labelRadius = config.outerRadius + config.labelDistance;
     var yCorrection = 0;
-    return labelHorizontal(d, i).y + (this.offsetHeight);
+    return labelHorizontal(d, i).y + this.offsetHeight / 4;
+    // return labelHorizontal(d, i).y + (this.offsetHeight);
 
     // if(0 === currentRotationDegree || 180 === currentRotationDegree) {
     //   yCorrection = this.offsetHeight / 4;
