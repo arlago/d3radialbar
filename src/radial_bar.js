@@ -5,10 +5,30 @@ var config = {
   center: {
     innerRadius: 30,
     backgroundColor: "#000",
-    text: ["line 1", "line 2"],
+    text: [
+      {
+        "text": "32",
+        "color": "#999",
+        "fontSize": 16,
+        "font": "helvetica",
+        "topPadding": 12
+      },
+      {
+        "text": "kWh",
+        "color": "#999",
+        "fontSize": 16,
+        "font": "helvetica",
+        "topPadding": 12
+      }
+    ],
+    textSpace: 5,
     fontName: "Helvetica",
     fontSize: "15px",
     fontColor: "#000"
+  },
+  colors: {
+    innerCircle: "#fff",
+    outerCircle: "#e5e5e5"
   },
   outerRadius: 90,
   labelDistance: 10 // Label distance from outerRadius.
@@ -23,7 +43,7 @@ var dataModelBase = {
   },
   bar: {
     value: 0, // Bar value
-    color: "#000", // Bar color
+    color: "#ff3b30", // Bar color
     width: 15
   }
 };
@@ -51,6 +71,17 @@ var svg = d3.select("body")
             .attr("id", "radial0")
             .attr("width", config.width)
             .attr("height", config.height);
+
+// OuterCircle
+svg.append("circle")
+  .attr("cx", config.width / 2).attr("cy", config.height / 2)
+  .attr("r", config.outerRadius)
+  //.style("fill", "none")
+  .attr('fill', function(d, i) {
+      return config.colors.outerCircle;
+  });
+  // .style("stroke", "black")
+  // .style("stroke-width",".5px");
 
 svg.selectAll('rect').data(config.data)
   .enter()
@@ -91,15 +122,41 @@ svg.selectAll('text').data(config.data)
 svg.append("circle")
   .attr("cx", config.width / 2)
   .attr("cy", config.height /2 )
-  .attr("r", config.center.innerRadius);
+  .attr("r", config.center.innerRadius)
+  .attr('fill', function(d, i) {
+      return config.colors.innerCircle;
+  });
 
-// OuterCircle
-svg.append("circle")
-  .attr("cx", config.width / 2).attr("cy", config.height / 2)
-  .attr("r", config.outerRadius)
-  .style("fill", "none")
-  .style("stroke", "black")
-  .style("stroke-width",".5px");
+svg.append("text")
+  .attr("id", "central-text")
+  .attr("text-anchor", "middle")
+  .selectAll('tspan')
+  .data(config.center.text)
+  .enter()
+  .append('tspan')
+  .text(function(d, i) {
+    return d.text;
+  })
+  .attr("dx", 0)
+  .attr("fill", function(d) { return d.color; })
+  .attr("font-size", function(d) { return d.fontSize + "px"; })
+  .attr("font-family", function(d) { return d.font; })
+  .attr('x', function(d, i) {
+    // var graphCenterX = config.width / 2;
+    // var halfTextWidth = this.offsetWidth / 2;
+    // return graphCenterX - halfTextWidth;
+    return config.width / 2;
+  })
+  .attr("dy", function(d, i) {
+    return 0 === i ? this.offsetHeight : ((this.offsetHeight * 2) + config.center.textSpace);
+  });
+
+  svg.select("text#central-text")
+  .attr('y', function(d, i) {
+    var graphCenterY = config.height / 2;
+    var halfTextHeight = (this.offsetHeight / 2) + config.center.textSpace;
+    return graphCenterY - halfTextHeight;
+  });
 
 function getRotationDegree(data) {
   return 360 / data.length;
