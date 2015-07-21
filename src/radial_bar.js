@@ -18,7 +18,7 @@ var dataModelBase = {
   label: {
     text: "", // Bar label
     fontFamily: "Helvetica",
-    fontSize: "12px",
+    fontSize: "8px",
     fontColor: "#000"
   },
   bar: {
@@ -29,9 +29,11 @@ var dataModelBase = {
 };
 
 var currentDataModel;
-for (var i = 0; i < 30; i++) {
+for (var i = 0; i < 8; i++) {
   currentDataModel = _.cloneDeep(dataModelBase);
-  currentDataModel.label.text = i;
+  // currentDataModel.label.text = i + ' pm';
+  currentDataModel.label.text = 'asdf';
+  // currentDataModel.label.text = i;
   // currentDataModel.bar.value = Math.abs(10 + (Math.floor(Math.random() * 101) - 50));
   currentDataModel.bar.value = 60;
   config.data.push(currentDataModel);
@@ -78,53 +80,83 @@ svg.selectAll('rect').data(config.data)
 svg.selectAll('text').data(config.data)
   .enter()
   .append("text")
-  .attr('text-anchor', function(d, i) {
-    var textAnchor = 'start';
-    var currentRotationDegree = rotationDegree * i;
-    if((45 < currentRotationDegree && 135 > currentRotationDegree) ||
-        (225 < currentRotationDegree && 315 > currentRotationDegree)) {
-      textAnchor = 'middle';
-    } else if (90 > currentRotationDegree || 270 < currentRotationDegree) {
-      textAnchor = 'end';
-    }
-    // if (45 < getDegreeReducedToFirstQuadrant(currentRotationDegree)) {
-    //   textAnchor = 'middle';
-    // }
-    return textAnchor;
+  .attr('text-anchor', 'middle')
+  .attr('degree', function(d, i) {
+    return rotationDegree * i;
   })
+  .attr('id', function(d, i) {
+    return 'label' + i;
+  })
+  .attr("font-family", function(d, i) { return d.label.fontFamily; } )
+  .attr("font-size", function(d, i) { return d.label.fontSize; } )
+  .attr("fill", function(d, i) { return d.label.fontColor; } )
   .text(function (d, i) { return d.label.text; })
   .attr("x", function(d, i) {
     var currentRotationDegree = rotationDegree * i;
     var xCorrection = 0;
-
-    if(90 === currentRotationDegree || 270 == currentRotationDegree) {
-      xCorrection = this.offsetWidth / 2;
-    } else if (90 > currentRotationDegree || 270 < currentRotationDegree) {
-      xCorrection = this.offsetWidth;
-    }
     return labelHorizontal(d, i).x;
+
+    // if(90 === currentRotationDegree || 270 == currentRotationDegree) {
+    //   xCorrection = this.offsetWidth / 2;
+    // } else if (90 > currentRotationDegree || 270 < currentRotationDegree) {
+    //   xCorrection = this.offsetWidth;
+    // }
+
+    if((45 < currentRotationDegree && 135 > currentRotationDegree) ||
+        (225 < currentRotationDegree && 315 > currentRotationDegree)) {
+      xCorrection = this.offsetHeight * Math.abs(Math.cos(currentRotationDegree * Math.PI / 180));
+    }
+
+    return labelHorizontal(d, i).x + xCorrection;
     // return labelHorizontal(d, i).x - xCorrection;
   })
   .attr("y", function(d, i) {
     var currentRotationDegree = rotationDegree * i;
     var labelRadius = config.outerRadius + config.labelDistance;
     var yCorrection = 0;
+    return labelHorizontal(d, i).y + (this.offsetHeight);
 
-    if(0 === currentRotationDegree || 180 == currentRotationDegree) {
-      yCorrection = this.offsetHeight / 4;
-    } else if (180 < currentRotationDegree) {
-      // yCorrection = this.offsetHeight / 2;
-      yCorrection = this.offsetHeight * Math.abs(Math.sin(currentRotationDegree * Math.PI / 180));
+    // if(0 === currentRotationDegree || 180 === currentRotationDegree) {
+    //   yCorrection = this.offsetHeight / 4;
+    // } else if (180 < currentRotationDegree) {
+    //   // yCorrection = this.offsetHeight / 2;
+    //   yCorrection = this.offsetHeight * Math.abs(Math.sin(currentRotationDegree * Math.PI / 180));
+    // }
+
+    if(0 === currentRotationDegree || 180 === currentRotationDegree) {
+      // Faz com que os labels fiquem mais centralizados, deve ser somado ao valor de y.
+      return labelHorizontal(d, i).y + (this.offsetHeight / 4);
     }
 
-    return labelHorizontal(d, i).y + yCorrection;
-  })
+    if((45 < currentRotationDegree && 135 > currentRotationDegree) ||
+        (225 < currentRotationDegree && 315 > currentRotationDegree)) {
+      yCorrection = (this.offsetHeight) * Math.abs(Math.sin(currentRotationDegree * Math.PI / 180));
+    }
+
+
+    // if(45 < currentRotationDegree && 135 > currentRotationDegree) {
+    //   return labelHorizontal(d, i).y - yCorrection;
+    // }
+
+    if (225 < currentRotationDegree && 315 > currentRotationDegree) {
+      var y = labelHorizontal(d, i).y;
+      if(313.5483870967742 === currentRotationDegree) {
+        console.log("Y: " + y);
+        console.log("YCorrection: " + yCorrection);
+      }
+      return y + yCorrection;
+    }
+
+    if (180 < currentRotationDegree) {
+      return labelHorizontal(d, i).y + (this.offsetHeight * Math.abs(Math.sin(currentRotationDegree * Math.PI / 180)));
+    }
+
+    return labelHorizontal(d, i).y;
+  });
   // .attr("transform", function(d, i) {
   //   return "translate(" + ( (config.width / 2) - (d.bar.width / 2) ) + "," + (config.height / 2) + ") rotate(" + (rotationDegree * i) + ")";
   // })
-  .attr("font-family", function(d, i) { return d.label.fontFamily; } )
-  .attr("font-size", function(d, i) { return d.label.fontSize; } )
-  .attr("fill", function(d, i) { return d.label.fontColor; } );
+
 
 function labelHorizontal(d, i) {
   var retorno = {};
