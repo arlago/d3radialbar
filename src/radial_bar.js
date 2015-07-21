@@ -1,7 +1,7 @@
 var config = {
   data: [],
-  width: 400,
-  height: 400,
+  width: 250,
+  height: 250,
   center: {
     innerRadius: 30,
     backgroundColor: "#000",
@@ -21,7 +21,7 @@ var config = {
         "topPadding": 12
       }
     ],
-    textSpace: 5,
+    textSpace: 1,
     fontName: "Helvetica",
     fontSize: "15px",
     fontColor: "#000"
@@ -31,28 +31,31 @@ var config = {
     outerCircle: "#e5e5e5"
   },
   outerRadius: 90,
-  labelDistance: 10 // Label distance from outerRadius.
+  labelDistance: 15 // Label distance from outerRadius.
 };
 
 var dataModelBase = {
   label: {
     text: "", // Bar label
     fontFamily: "Helvetica",
-    fontSize: "15px",
+    fontSize: "8px",
     fontColor: "#000"
   },
   bar: {
     value: 0, // Bar value
     color: "#ff3b30", // Bar color
-    width: 15
+    width: 5
   }
 };
 
 var currentDataModel;
-for (var i = 0; i < 8; i++) {
+for (var i = 0; i < 28; i++) {
   currentDataModel = _.cloneDeep(dataModelBase);
-  currentDataModel.label.text = "Week " + i;
-  currentDataModel.bar.value = Math.abs(10 + (Math.floor(Math.random() * 101) - 50));
+  // currentDataModel.label.text = i + ' pm';
+  // currentDataModel.label.text = 'asdf';
+  currentDataModel.label.text = i;
+  // currentDataModel.bar.value = Math.abs(10 + (Math.floor(Math.random() * 101) - 50));
+  currentDataModel.bar.value = 60;
   config.data.push(currentDataModel);
 }
 
@@ -76,12 +79,9 @@ var svg = d3.select("body")
 svg.append("circle")
   .attr("cx", config.width / 2).attr("cy", config.height / 2)
   .attr("r", config.outerRadius)
-  //.style("fill", "none")
   .attr('fill', function(d, i) {
       return config.colors.outerCircle;
   });
-  // .style("stroke", "black")
-  // .style("stroke-width",".5px");
 
 svg.selectAll('rect').data(config.data)
   .enter()
@@ -108,15 +108,57 @@ svg.selectAll('rect').data(config.data)
 svg.selectAll('text').data(config.data)
   .enter()
   .append("text")
-  .attr("x", function(d, i) { return (config.outerRadius + config.labelDistance) * -1; })
-  .attr("y", 0)
-  .attr("transform", function(d, i) {
-    return "translate(" + ( (config.width / 2) - (d.bar.width / 2) ) + "," + (config.height / 2) + ") rotate(" + (rotationDegree * i) + ")";
+  .attr('text-anchor', 'middle')
+  .attr('degree', function(d, i) {
+    return rotationDegree * i;
   })
-  .text(function (d, i) { return d.label.text; })
+  .attr('id', function(d, i) {
+    return 'label' + i;
+  })
   .attr("font-family", function(d, i) { return d.label.fontFamily; } )
   .attr("font-size", function(d, i) { return d.label.fontSize; } )
-  .attr("fill", function(d, i) { return d.label.fontColor; } );
+  .attr("fill", function(d, i) { return d.label.fontColor; } )
+  .text(function (d, i) { return d.label.text; })
+  .attr("x", function(d, i) {
+    var currentRotationDegree = rotationDegree * i;
+    var xCorrection = 0;
+    return labelHorizontal(d, i).x;
+  })
+  .attr("y", function(d, i) {
+    var currentRotationDegree = rotationDegree * i;
+    var labelRadius = config.outerRadius + config.labelDistance;
+    var yCorrection = 0;
+    return labelHorizontal(d, i).y + this.offsetHeight / 4;
+  });
+
+function labelHorizontal(d, i) {
+  var retorno = {};
+  var labelRadius = config.outerRadius + config.labelDistance;
+  var currentRotationDegree = rotationDegree * i;
+  switch (true) {
+    case 0 <= currentRotationDegree && currentRotationDegree <= 90:
+        retorno.x = drawConfig.svgCenter.x - (labelRadius * Math.cos(currentRotationDegree * Math.PI / 180));
+        retorno.y = drawConfig.svgCenter.y - (labelRadius * Math.sin(currentRotationDegree * Math.PI / 180));
+      break;
+
+    case 90 < currentRotationDegree && currentRotationDegree <= 180:
+        retorno.x = drawConfig.svgCenter.x + Math.abs((labelRadius * Math.cos(currentRotationDegree * Math.PI / 180)));
+        retorno.y = drawConfig.svgCenter.y - Math.abs((labelRadius * Math.sin(currentRotationDegree * Math.PI / 180)));
+      break;
+
+    case 180 < currentRotationDegree && currentRotationDegree <= 270:
+        retorno.x = drawConfig.svgCenter.x + Math.abs((labelRadius * Math.cos(currentRotationDegree * Math.PI / 180)));
+        retorno.y = drawConfig.svgCenter.y + Math.abs((labelRadius * Math.sin(currentRotationDegree * Math.PI / 180)));
+      break;
+
+    case 270 < currentRotationDegree:
+        retorno.x = drawConfig.svgCenter.x - Math.abs((labelRadius * Math.cos(currentRotationDegree * Math.PI / 180)));
+        retorno.y = drawConfig.svgCenter.y + Math.abs((labelRadius * Math.sin(currentRotationDegree * Math.PI / 180)));
+      break;
+  }
+
+  return retorno;
+}
 
 // InnerCircle
 svg.append("circle")
@@ -142,19 +184,16 @@ svg.append("text")
   .attr("font-size", function(d) { return d.fontSize + "px"; })
   .attr("font-family", function(d) { return d.font; })
   .attr('x', function(d, i) {
-    // var graphCenterX = config.width / 2;
-    // var halfTextWidth = this.offsetWidth / 2;
-    // return graphCenterX - halfTextWidth;
     return config.width / 2;
   })
   .attr("dy", function(d, i) {
-    return 0 === i ? this.offsetHeight : ((this.offsetHeight * 2) + config.center.textSpace);
+    return this.offsetHeight;
   });
 
   svg.select("text#central-text")
   .attr('y', function(d, i) {
     var graphCenterY = config.height / 2;
-    var halfTextHeight = (this.offsetHeight / 2) + config.center.textSpace;
+    var halfTextHeight = (this.offsetHeight / 2); // + config.center.textSpace;
     return graphCenterY - halfTextHeight;
   });
 
