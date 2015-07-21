@@ -1,15 +1,15 @@
 var config = {
   data: [],
-  width: 250,
-  height: 250,
+  width: 320,
+  height: 320,
   center: {
-    innerRadius: 30,
+    innerRadius: 40,
     backgroundColor: "#000",
     text: [
       {
         "text": "32",
         "color": "#999",
-        "fontSize": 16,
+        "fontSize": 24,
         "font": "helvetica",
         "topPadding": 12
       },
@@ -30,15 +30,15 @@ var config = {
     innerCircle: "#fff",
     outerCircle: "#e5e5e5"
   },
-  outerRadius: 90,
-  labelDistance: 15 // Label distance from outerRadius.
+  outerRadius: 110,
+  labelDistance: 10 // Label distance from outerRadius.
 };
 
 var dataModelBase = {
   label: {
     text: "", // Bar label
     fontFamily: "Helvetica",
-    fontSize: "8px",
+    fontSize: "9px",
     fontColor: "#000"
   },
   bar: {
@@ -49,13 +49,13 @@ var dataModelBase = {
 };
 
 var currentDataModel;
-for (var i = 0; i < 28; i++) {
+for (var i = 0; i < 30; i++) {
   currentDataModel = _.cloneDeep(dataModelBase);
   // currentDataModel.label.text = i + ' pm';
   // currentDataModel.label.text = 'asdf';
-  currentDataModel.label.text = i;
-  // currentDataModel.bar.value = Math.abs(10 + (Math.floor(Math.random() * 101) - 50));
-  currentDataModel.bar.value = 60;
+  currentDataModel.label.text = i + 1;
+  currentDataModel.bar.value = Math.abs(10 + (Math.floor(Math.random() * 101) - 50));
+  // currentDataModel.bar.value = 60;
   config.data.push(currentDataModel);
 }
 
@@ -94,7 +94,7 @@ svg.selectAll('rect').data(config.data)
   .attr("y", function(d, i) { return d.bar.width * -1; })
   .attr("transform", function(d, i) {
 
-    var currentRotationDegree = rotationDegree * i;
+    var currentRotationDegree = (rotationDegree * i) + 90;
     var xCorrection = (d.bar.width / 2) *  Math.sin(currentRotationDegree * Math.PI / 180);
     var yCorrection = (d.bar.width / 2) *  Math.cos(currentRotationDegree * Math.PI / 180);
 
@@ -110,7 +110,7 @@ svg.selectAll('text').data(config.data)
   .append("text")
   .attr('text-anchor', 'middle')
   .attr('degree', function(d, i) {
-    return rotationDegree * i;
+    return (rotationDegree * i) + 90;
   })
   .attr('id', function(d, i) {
     return 'label' + i;
@@ -120,12 +120,12 @@ svg.selectAll('text').data(config.data)
   .attr("fill", function(d, i) { return d.label.fontColor; } )
   .text(function (d, i) { return d.label.text; })
   .attr("x", function(d, i) {
-    var currentRotationDegree = rotationDegree * i;
+    var currentRotationDegree = (rotationDegree * i) + 90;
     var xCorrection = 0;
     return labelHorizontal(d, i).x;
   })
   .attr("y", function(d, i) {
-    var currentRotationDegree = rotationDegree * i;
+    var currentRotationDegree = (rotationDegree * i) + 90;
     var labelRadius = config.outerRadius + config.labelDistance;
     var yCorrection = 0;
     return labelHorizontal(d, i).y + this.offsetHeight / 4;
@@ -134,9 +134,9 @@ svg.selectAll('text').data(config.data)
 function labelHorizontal(d, i) {
   var retorno = {};
   var labelRadius = config.outerRadius + config.labelDistance;
-  var currentRotationDegree = rotationDegree * i;
+  var currentRotationDegree = (rotationDegree * i) + 90;
   switch (true) {
-    case 0 <= currentRotationDegree && currentRotationDegree <= 90:
+    case (0 <= currentRotationDegree && currentRotationDegree <= 90) || 360 < currentRotationDegree:
         retorno.x = drawConfig.svgCenter.x - (labelRadius * Math.cos(currentRotationDegree * Math.PI / 180));
         retorno.y = drawConfig.svgCenter.y - (labelRadius * Math.sin(currentRotationDegree * Math.PI / 180));
       break;
@@ -199,6 +199,34 @@ svg.append("text")
 
 function getRotationDegree(data) {
   return 360 / data.length;
+}
+
+function getCurrentRotationDegree(d, i) {
+
+}
+
+function MathDegreesFactory() {
+  return {
+    rotationDegree: 0,
+    getRotationDegree: function(data) {
+      return 360 / data.length;
+    },
+    getCurrentRotationDegree: function(currentIndex) {
+      return rotationDegree * currentIndex;
+    },
+    cos: function(angle) {
+      return Math.cos(angle * Math.PI / 180);
+    },
+    sin: function(angle) {
+      return Math.sin(angle * Math.PI / 180);
+    },
+    cosAbs: function(angle) {
+      return Math.abs(this.cos(angle));
+    },
+    sinAbs: function(angle) {
+      return Math.abs(this.sin(angle));
+    }
+  }
 }
 
 // Math.sin(angleDegree * Math.PI / 180)
