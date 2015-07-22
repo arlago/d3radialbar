@@ -31,7 +31,7 @@ var config = {
     outerCircle: "#e5e5e5"
   },
   outerRadius: 110,
-  labelDistance: 10 // Label distance from outerRadius.
+  labelDistance: 15 // Label distance from outerRadius.
 };
 
 var dataModelBase = {
@@ -54,8 +54,8 @@ for (var i = 0; i < 30; i++) {
   // currentDataModel.label.text = i + ' pm';
   // currentDataModel.label.text = 'asdf';
   currentDataModel.label.text = i + 1;
-  currentDataModel.bar.value = Math.abs(10 + (Math.floor(Math.random() * 101) - 50));
-  // currentDataModel.bar.value = 60;
+  // currentDataModel.bar.value = Math.abs(10 + (Math.floor(Math.random() * 101) - 50));
+  currentDataModel.bar.value = 70;
   config.data.push(currentDataModel);
 }
 
@@ -105,6 +105,77 @@ svg.selectAll('rect').data(config.data)
 
   });
 
+// var labelRadius = config.outerRadius + config.labelDistance;
+//var distanceFromTop = ((labelRadius * 45.45) / 100) - 10;
+
+// Radius | Top distance
+// 70       90
+// 80  ===  80 -> Contant
+// 90       70
+// 100      60
+// 110      50
+// 120      40
+// 130      30
+// 140      20
+
+// var constantForTopPositioning = 80;
+// var distanceFromTop = 0;
+// if (constantForTopPositioning < labelRadius) {
+//   distanceFromTop = constantForTopPositioning - (labelRadius - constantForTopPositioning);
+// } else {
+//   distanceFromTop = constantForTopPositioning + (constantForTopPositioning - labelRadius);
+// }
+// var labelRadius = config.outerRadius + config.labelDistance;
+// var distanceFromTop = (config.height / 2) - (labelRadius);
+// var distanceFromLeft = config.width / 2;
+
+// var numberOfBars = config.data.length;
+var labels = svg.append("g")
+  .classed("labels", true);
+
+  labels.append("def")
+    .append("path")
+    .attr("id", "label-path")
+    // .attr("d", "m0 " + -labelRadius + " a" + labelRadius + " " + labelRadius + " 0 1,1 -0.01 0");
+    // .attr("d", "m160 " + 50 + " a" + 110 + " " + 110 + " 0 1,1 -0.01 0"); the correct one.
+    // m160 is the distance from the left corner.
+    // 50 is the distance from the top.
+    // 100 is the radius.
+    // ((labelRadius / 2) - config.labelDistance)
+    //var distanceFromLeftCorner = config.width / 2;
+
+    // .attr("d", "m160 " + 90 + " a" + 70 + " " + 70 + " 0 1,1 -0.01 0");
+    .attr("d", function(d, i) {
+      var labelRadius = config.outerRadius + config.labelDistance;
+      var distanceFromTop = (config.height / 2) - (labelRadius);
+      var distanceFromLeft = config.width / 2;
+      return "m" + distanceFromLeft + " " + distanceFromTop + " a" + labelRadius + " " + labelRadius + " 0 1,1 -0.01 0";
+    })
+    // .attr("d", "m" + distanceFromLeft + " " + distanceFromTop + " a" + labelRadius + " " + labelRadius + " 0 1,1 -0.01 0");
+
+  labels.selectAll("text")
+    .data(config.data)
+    .enter()
+    .append("text")
+    .attr('degree', function(d, i) {
+      return (rotationDegree * i) + 90;
+    })
+    .attr('id', function(d, i) {
+      return 'label' + i;
+    })
+    .attr("font-family", function(d, i) { return d.label.fontFamily; } )
+    .attr("font-size", function(d, i) { return d.label.fontSize; } )
+    .attr("fill", function(d, i) { return d.label.fontColor; } )
+    .style("text-anchor", "middle")
+    .append("textPath")
+    .attr("xlink:href", "#label-path")
+    // .attr("startOffset", function(d, i) {return i * 100 / numberOfBars + 50 / numberOfBars + '%';}) The correct one.
+    .attr("startOffset", function(d, i) {
+      return i * 100 / config.data.length + '%';
+    })
+    .text(function(d, i) { return d.label.text; });
+
+/*
 svg.selectAll('text').data(config.data)
   .enter()
   .append("text")
@@ -159,6 +230,7 @@ function labelHorizontal(d, i) {
 
   return retorno;
 }
+*/
 
 // InnerCircle
 svg.append("circle")
