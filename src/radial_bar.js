@@ -117,8 +117,12 @@ RadialBar.prototype.createBars = function() {
     .attr("fill", function(d, i) { return d.bar.color; })
     .attr("width", function(d, i) { return d.bar.value; })
     .attr("height", function(d, i) { return d.bar.width; })
-    .attr("x", function(d, i) { return (d.bar.value + self.config.center.innerRadius) * -1; })
+    // Minus 10 to hide the round end of the bar and for the calculus be easier.
+    .attr("x", function(d, i) { return (d.bar.value + self.config.center.innerRadius - 10) * -1; })
     .attr("y", function(d, i) { return d.bar.width * -1; })
+    // 10 is an arbitrary number.
+    .attr("rx", function(d, i) { return 10 >= d.bar.width ? d.bar.width * 0.4 : d.bar.width * 0.3; })
+    .attr("ry", function(d, i) { return 10 >= d.bar.width ? d.bar.width * 0.4 : d.bar.width * 0.2; })
     .attr("transform", function(d, i) {
 
       // var currentRotationDegree = (rotationDegree * i) + 90;
