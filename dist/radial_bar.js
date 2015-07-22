@@ -125,9 +125,12 @@ RadialBar.prototype.createBars = function() {
     .attr("ry", function(d, i) { return 10 >= d.bar.width ? d.bar.width * 0.4 : d.bar.width * 0.2; })
     .attr("transform", function(d, i) {
 
+      // var currentRotationDegree = (rotationDegree * i) + 90;
       var currentRotationDegree = self.degrees.getCurrentRotationDegree(i);
       var xCorrection = (d.bar.width / 2) *  self.degrees.sin(currentRotationDegree);
+      // var xCorrection = (d.bar.width / 2) *  Math.sin(currentRotationDegree * Math.PI / 180);
       var yCorrection = (d.bar.width / 2) *  self.degrees.cos(currentRotationDegree);
+      // var yCorrection = (d.bar.width / 2) *  Math.cos(currentRotationDegree * Math.PI / 180);
 
       var xTranslate = self.svgCenter.x - xCorrection;
       var yTranslate = self.svgCenter.y + yCorrection;
@@ -317,3 +320,16 @@ MathDegree.prototype.cosAbs = function(angle) {
 MathDegree.prototype.sinAbs = function(angle) {
   return Math.abs(this.sin(angle));
 };
+
+// Math.sin(angleDegree * Math.PI / 180)
+// Math.cos(angleDegree * (180/Math.PI))
+
+
+// Today circle degrees.
+//     90
+// 0       180
+//    270
+// It Must be.
+//       0
+// 270       90
+//      180

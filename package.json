@@ -1,0 +1,28 @@
+{
+  "name": "d3radialbar",
+  "version": "0.0.1",
+  "description": "Specialized radial bar chart with d3 library.",
+  "main": "index.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arlago/d3radialbar.git"
+  },
+  "author": "Antonio Rodrigo Lago <antoniorodrigolago@yahoo.com.br>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arlago/d3radialbar/issues"
+  },
+  "homepage": "https://github.com/arlago/d3radialbar",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-jshint": "^1.11.2",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^1.2.0"
+  }
+}
