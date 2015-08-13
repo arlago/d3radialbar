@@ -115,10 +115,11 @@ RadialBar.prototype.createBars = function() {
     .append("rect")
     .attr("id", function(d, i) { return "bar" + i; })
     .attr("fill", function(d, i) { return d.bar.color; })
-    .attr("width", function(d, i) { return d.bar.value; })
+    // Add 10 to hide the round edge of the bar.
+    .attr("width", function(d, i) { return d.bar.value + 10; })
     .attr("height", function(d, i) { return d.bar.width; })
     // Minus 10 to hide the round end of the bar and for the calculus be easier.
-    .attr("x", function(d, i) { return (d.bar.value + self.config.center.innerRadius - 10) * -1; })
+    .attr("x", function(d, i) { return (d.bar.value + self.config.center.innerRadius) * -1; })
     .attr("y", function(d, i) { return d.bar.width * -1; })
     // 10 is an arbitrary number.
     .attr("rx", function(d, i) { return 10 >= d.bar.width ? d.bar.width * 0.4 : d.bar.width * 0.3; })
