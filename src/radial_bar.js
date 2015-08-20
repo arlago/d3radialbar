@@ -23,7 +23,7 @@ var config = {
     ],
     textSpace: 1,
     fontName: "Helvetica",
-    fontSize: "15px",
+    fontSize: 15,
     fontColor: "#000"
   },
   colors: {
@@ -39,7 +39,7 @@ var dataModelBase = {
   label: {
     text: "", // Bar label
     fontFamily: "Helvetica",
-    fontSize: "9px",
+    fontSize: 9,
     fontColor: "#000"
   },
   bar: {
@@ -164,7 +164,7 @@ RadialBar.prototype.createCircularLabels = function() {
       return 'label' + i;
     })
     .attr("font-family", function(d, i) { return d.label.fontFamily; } )
-    .attr("font-size", function(d, i) { return d.label.fontSize; } )
+    .attr("font-size", function(d, i) { return d.label.fontSize + 'px'; } )
     .attr("fill", function(d, i) { return d.label.fontColor; } )
     .style("text-anchor", "middle")
     .append("textPath")
@@ -191,7 +191,7 @@ RadialBar.prototype.createHorizontalLabels = function() {
       return 'label' + i;
     })
     .attr("font-family", function(d, i) { return d.label.fontFamily; } )
-    .attr("font-size", function(d, i) { return d.label.fontSize; } )
+    .attr("font-size", function(d, i) { return d.label.fontSize + 'px'; } )
     .attr("fill", function(d, i) { return d.label.fontColor; } )
     .text(function (d, i) { return d.label.text; })
     .attr("x", function(d, i) {
